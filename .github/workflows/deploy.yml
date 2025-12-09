@@ -1,4 +1,4 @@
-name: Deploy to Lolipop
+name: Deploy to Lolipop via FTPS
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
 
 jobs:
   deploy:
+    name: FTP Deploy
     runs-on: ubuntu-latest
 
     steps:
@@ -21,15 +22,14 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Build Project
+      - name: Build project
         run: npm run build
 
-      - name: Deploy to Lolipop via SFTP
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+      - name: Deploy to Lolipop (FTPS)
+        uses: SamKirkland/FTP-Deploy-Action@4.3.3
         with:
-          server: ${{ secrets.SFTP_HOST }}
-          username: ${{ secrets.SFTP_USER }}
-          password: ${{ secrets.SFTP_PASSWORD }}
-          local_path: "./dist/*"
-          remote_path: ${{ secrets.SFTP_TARGET }}
-          sftp_only: true
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_TARGET }}
+          protocol: ftps
