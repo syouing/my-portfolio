@@ -61,15 +61,21 @@ function App() {
         </motion.section>
 
         {/* Skills */}
-        <section id="skills" className="section">
+        <motion.section
+          className="section"
+          id="skills"
+          initial={{ opacity: 0, y: 32 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
           <h2>Skills</h2>
           <ul>
             <li>React / Vite</li>
             <li>JavaScript / TypeScript（予定）</li>
             <li>Finance / Marketing Research など</li>
           </ul>
-        </section>
-
+        </motion.section>
         {/* Projects（カードレイアウト） */}
         <motion.section
           id="projects"
