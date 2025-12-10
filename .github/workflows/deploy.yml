@@ -11,20 +11,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+      # リポジトリの中身をチェックアウト
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
+      # Node をセットアップ
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: "npm"
 
-      - name: Install Dependencies
+      # 依存パッケージをインストール
+      - name: Install dependencies
         run: npm install
 
+      # Vite で本番ビルド（dist/ ができる）
       - name: Build project
         run: npm run build
 
+      # dist/ フォルダだけをロリポップにアップロード
       - name: Deploy to Lolipop (FTPS)
         uses: SamKirkland/FTP-Deploy-Action@4.3.3
         with:
@@ -33,3 +39,5 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: ${{ secrets.FTP_TARGET }}
           protocol: ftps
+          local-dir: ./dist/              # ★ここが超重要
+          dangerous-clean-slate: true     # ★サーバー側のフォルダを一旦まっさらにしてからアップ
