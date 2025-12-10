@@ -7,8 +7,6 @@
   transition={{ duration: 0.6, ease: "easeOut", delay: 0.15 }}
 >
   <h2>Projects</h2>
-
-  {/* プロジェクトデータをここに追加するだけでOK */}
   {[
     {
       title: "ポートフォリオサイト",
