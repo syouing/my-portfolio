@@ -49,24 +49,44 @@ function App() {
           <p className="section-lead">ここに自己紹介を書いていきます。</p>
         </motion.section>
 
-        <section id="skills" className="section">
+        <motion.section
+          id="skills"
+          className="section"
+          initial={{ opacity: 0, y: 32 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
+        >
           <h2>Skills</h2>
           <ul>
             <li>React / Vite</li>
             <li>JavaScript / TypeScript（予定）</li>
             <li>Finance / Marketing Research など</li>
           </ul>
-        </section>
-
-        <section id="projects" className="section">
+        </motion.section>
+        <motion.section
+          id="projects"
+          className="section"
+          initial={{ opacity: 0, y: 32 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, ease: "easeOut", delay: 0.15 }}
+        >
           <h2>Projects</h2>
           <p>ここに作品一覧を並べます。</p>
-        </section>
+        </motion.section>
 
-        <section id="contact" className="section">
+        <motion.section
+          id="contact"
+          className="section"
+          initial={{ opacity: 0, y: 32 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+        >
           <h2>Contact</h2>
           <p>メールや各種リンクを載せる。</p>
-        </section>
+        </motion.section>
       </main>
 
       <footer className="footer">© 2025 Shota Tanaka</footer>
