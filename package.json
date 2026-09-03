@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run validate:posts && vite build",
+    "validate:posts": "node scripts/validate-posts.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
