@@ -40,4 +40,4 @@ jobs:
           server-dir: ${{ secrets.FTP_TARGET }}
           protocol: ftps
           local-dir: ./dist/              # ★ここが超重要
-          dangerous-clean-slate: true     # ★サーバー側のフォルダを一旦まっさらにしてからアップ
+          dangerous-clean-slate: false    # 既存の公開ファイルとURLを保持する
