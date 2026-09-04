@@ -6,7 +6,7 @@ const Hero = () => {
       <div className="hero-content">
         <p className="hero-tagline">Finance × Data × Software</p>
         <h1>
-          田中 翔大<span> / Shota Tanaka</span>
+          田中翔大<span> / tanakashoi</span>
         </h1>
         <p className="hero-text">
           金融・経済・データ分析のバックグラウンドを持つ、
