@@ -38,7 +38,7 @@ export default function App() {
 
   return <div className="app">
     <header className="site-header">
-      <a className="brand" href="#top" aria-label="田中翔大 ポートフォリオ ホーム"><span className="brand-avatar">ST</span><span>Shota Tanaka</span></a>
+      <a className="brand" href="#top" aria-label="田中翔大 ポートフォリオ ホーム"><span className="brand-avatar">TS</span><span>tanakashoi</span></a>
       <nav aria-label="メインナビゲーション"><a href="#about">私について</a><a href="#skills">スキル</a><a href="#projects">制作実績</a><a href="#essay">エッセイ</a></nav>
       <a className="header-contact" href="#contact">お問い合わせ</a>
     </header>
@@ -51,7 +51,7 @@ export default function App() {
           <p className="hero-lead">金融・経済・データ分析のバックグラウンドを持つ、エンジニア志望のビジネスパーソンです。PythonとReactを用いて、「思考力」と「洞察力」を活かしたプロダクトづくりに取り組んでいます。</p>
           <div className="hero-actions"><a className="button primary" href="#projects">制作実績を見る</a><a className="button secondary" href="#about">私について</a></div>
         </motion.div>
-        <div className="profile-card" aria-label="プロフィール要約"><div className="profile-monogram">ST</div><div><strong>田中 翔大</strong><span>Shota Tanaka</span></div><dl><div><dt>Focus</dt><dd>Finance × Engineering</dd></div><div><dt>Based in</dt><dd>Japan</dd></div><div><dt>Status</dt><dd><i /> Building & Learning</dd></div></dl></div>
+        <div className="profile-card" aria-label="プロフィール要約"><div className="profile-monogram">TS</div><div><strong>田中翔大</strong><span>tanakashoi</span></div><dl><div><dt>Focus</dt><dd>Finance × Engineering</dd></div><div><dt>Based in</dt><dd>Japan</dd></div><div><dt>Status</dt><dd><i /> Building & Learning</dd></div></dl></div>
       </section>
 
       <section className="content-section section-shell" id="about">
@@ -77,7 +77,7 @@ export default function App() {
 
       <section className="contact section-shell" id="contact"><p className="kicker">Contact</p><h2>一緒に、次の仕組みを。</h2><p>プロジェクトや制作について、お気軽にご連絡ください。</p><a className="button primary" href="mailto:your-mail@example.com">メールを送る</a></section>
     </main>
-    <footer className="section-shell"><span>© {new Date().getFullYear()} Shota Tanaka</span><a href="https://github.com/syouing" target="_blank" rel="noreferrer">GitHub ↗</a></footer>
+    <footer className="section-shell"><span>© {new Date().getFullYear()} tanakashoi</span><a href="https://github.com/syouing" target="_blank" rel="noreferrer">GitHub ↗</a></footer>
     <AnimatePresence>{activePost && <Article post={activePost} />}</AnimatePresence>
   </div>;
 }
