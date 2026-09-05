@@ -1,0 +1,26 @@
+{
+  "finance": [
+    "images/essay-covers/finance-01.jpg",
+    "images/essay-covers/finance-02.jpg",
+    "images/essay-covers/finance-03.jpg",
+    "images/essay-covers/finance-04.jpg",
+    "images/essay-covers/finance-05.jpg",
+    "images/essay-covers/finance-06.jpg",
+    "images/essay-covers/finance-07.jpg",
+    "images/essay-covers/finance-08.jpg",
+    "images/essay-covers/finance-09.jpg",
+    "images/essay-covers/finance-10.jpg"
+  ],
+  "engineering": [
+    "images/essay-covers/engineering-01.jpg",
+    "images/essay-covers/engineering-02.jpg",
+    "images/essay-covers/engineering-03.jpg",
+    "images/essay-covers/engineering-04.jpg",
+    "images/essay-covers/engineering-05.jpg",
+    "images/essay-covers/engineering-06.jpg",
+    "images/essay-covers/engineering-07.jpg",
+    "images/essay-covers/engineering-08.jpg",
+    "images/essay-covers/engineering-09.jpg",
+    "images/essay-covers/engineering-10.jpg"
+  ]
+}

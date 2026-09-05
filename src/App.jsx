@@ -5,7 +5,7 @@ import "./style.css";
 const postModules = import.meta.glob("./content/posts/*.json", { eager: true, import: "default" });
 const posts = Object.values(postModules).sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
 const labels = { finance: "金融", engineering: "エンジニアリング" };
-const images = {
+const fallbackImages = {
   finance: `${import.meta.env.BASE_URL}images/finance-cover.png`,
   engineering: `${import.meta.env.BASE_URL}images/engineering-cover.png`,
 };
@@ -24,18 +24,18 @@ const projects = [
 
 const formatDate = (date) => new Intl.DateTimeFormat("ja-JP", { year: "numeric", month: "short", day: "numeric" }).format(new Date(date));
 const getParagraphs = (post) => post.paragraphs ?? post.sections?.flatMap((section) => section.paragraphs) ?? [];
-function useHashPost() {
-  const read = () => location.hash.startsWith("#essay/") ? location.hash.slice(7) : "";
-  const [slug, setSlug] = useState(read);
-  useEffect(() => { const update = () => setSlug(read()); addEventListener("hashchange", update); return () => removeEventListener("hashchange", update); }, []);
-  return posts.find((post) => post.slug === slug);
+const getCover = (post) => post.cover ? `${import.meta.env.BASE_URL}${post.cover}` : fallbackImages[post.category];
+function useHashRoute() {
+  const read = () => location.hash;
+  const [hash, setHash] = useState(read);
+  useEffect(() => { const update = () => setHash(read()); addEventListener("hashchange", update); return () => removeEventListener("hashchange", update); }, []);
+  return { activePost: posts.find((post) => hash === `#essay/${post.slug}`), archiveOpen: hash === "#essays" };
 }
 
 export default function App() {
-  const [filter, setFilter] = useState("all");
-  const activePost = useHashPost();
-  const visiblePosts = useMemo(() => posts.filter((post) => filter === "all" || post.category === filter), [filter]);
-  useEffect(() => { document.body.style.overflow = activePost ? "hidden" : ""; return () => { document.body.style.overflow = ""; }; }, [activePost]);
+  const { activePost, archiveOpen } = useHashRoute();
+  const latestPosts = posts.slice(0, 2);
+  useEffect(() => { document.body.style.overflow = activePost || archiveOpen ? "hidden" : ""; return () => { document.body.style.overflow = ""; }; }, [activePost, archiveOpen]);
 
   return <div className="app">
     <header className="site-header">
@@ -72,17 +72,23 @@ export default function App() {
 
       <section className="content-section section-shell essay-section" id="essay">
         <SectionTitle label="Writing" title="Essay" copy="制作と思考の背景を記録する、小さなノートです。" />
-        <div className="filter-row" role="group" aria-label="記事カテゴリ">{[["all","すべて"],["finance","金融"],["engineering","エンジニアリング"]].map(([key,label]) => <button type="button" key={key} aria-pressed={filter === key} onClick={() => setFilter(key)}>{label}</button>)}</div>
-        <div className="essay-grid">{visiblePosts.map((post) => <a className="essay-card" href={`#essay/${post.slug}`} key={post.slug}><img src={images[post.category]} alt="" /><div><Meta post={post} /><h3>{post.title}</h3><p>{post.summary}</p><span>読む <b>›</b></span></div></a>)}</div>
+        <div className="essay-grid latest-essay-grid">{latestPosts.map((post) => <EssayCard post={post} key={post.slug} />)}</div>
+        <a className="archive-link" href="#essays"><span><small>Archive</small>過去のエッセイを見る</span><b>›</b></a>
       </section>
 
       <section className="contact section-shell" id="contact"><p className="kicker">Contact</p><h2>一緒に、次の仕組みを。</h2><p>プロジェクトや制作について、お気軽にご連絡ください。</p><a className="button primary" href="mailto:your-mail@example.com">メールを送る</a></section>
     </main>
     <footer className="section-shell"><span>© {new Date().getFullYear()} tanakashoi</span><a href="https://github.com/syouing" target="_blank" rel="noreferrer">GitHub ↗</a></footer>
-    <AnimatePresence>{activePost && <Article post={activePost} />}</AnimatePresence>
+    <AnimatePresence>{archiveOpen && <EssayArchive />}{activePost && <Article post={activePost} />}</AnimatePresence>
   </div>;
 }
 
 function SectionTitle({ label, title, copy }) { return <div className="section-title"><p className="kicker">{label}</p><h2>{title}</h2>{copy && <p>{copy}</p>}</div>; }
 function Meta({ post }) { return <div className="essay-meta"><span>{labels[post.category]}</span><time>{formatDate(post.publishedAt)}</time></div>; }
-function Article({ post }) { return <motion.div className="article-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><a href="#essay" className="article-back">‹ エッセイに戻る</a><article className="article-page"><header><Meta post={post} /><h1>{post.title}</h1><p>{post.summary}</p><img src={images[post.category]} alt="" /></header><div className="article-content">{getParagraphs(post).map((paragraph, index) => <p key={`${post.slug}-${index}`}>{paragraph}</p>)}<div className="article-references" aria-label="参考資料"><p className="references-label">参考資料</p><ol>{post.references.map((reference) => <li key={reference.url}><a href={reference.url} target="_blank" rel="noreferrer">{reference.title}</a><span>{reference.publisher}</span></li>)}</ol></div><aside>本人とAIの対話・調査メモをもとに編集しています。金融記事は投資判断を勧めるものではありません。</aside></div></article></motion.div>; }
+function EssayCard({ post }) { return <a className="essay-card" href={`#essay/${post.slug}`}><img src={getCover(post)} alt="" loading="lazy" /><div><Meta post={post} /><h3>{post.title}</h3><p>{post.summary}</p><span>読む <b>›</b></span></div></a>; }
+function EssayArchive() {
+  const [filter, setFilter] = useState("all");
+  const visiblePosts = useMemo(() => posts.slice(2).filter((post) => filter === "all" || post.category === filter), [filter]);
+  return <motion.div className="article-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><a href="#essay" className="article-back">‹ ポートフォリオに戻る</a><div className="archive-page"><header><p className="kicker">Essay Archive</p><h1>過去のエッセイ。</h1><p>金融とエンジニアリングについて考えた記録を、公開日の新しい順にまとめています。</p></header><div className="filter-row" role="group" aria-label="記事カテゴリ">{[["all","すべて"],["finance","金融"],["engineering","エンジニアリング"]].map(([key,label]) => <button type="button" key={key} aria-pressed={filter === key} onClick={() => setFilter(key)}>{label}</button>)}</div><div className="essay-grid archive-grid">{visiblePosts.map((post) => <EssayCard post={post} key={post.slug} />)}</div></div></motion.div>;
+}
+function Article({ post }) { return <motion.div className="article-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><a href="#essays" className="article-back">‹ エッセイ一覧に戻る</a><article className="article-page"><header><Meta post={post} /><h1>{post.title}</h1><p>{post.summary}</p><img src={getCover(post)} alt="" /></header><div className="article-content">{getParagraphs(post).map((paragraph, index) => <p key={`${post.slug}-${index}`}>{paragraph}</p>)}<div className="article-references" aria-label="参考資料"><p className="references-label">参考資料</p><ol>{post.references.map((reference) => <li key={reference.url}><a href={reference.url} target="_blank" rel="noreferrer">{reference.title}</a><span>{reference.publisher}</span></li>)}</ol></div><aside>本人とAIの対話・調査メモをもとに編集しています。金融記事は投資判断を勧めるものではありません。</aside></div></article></motion.div>; }
