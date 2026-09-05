@@ -15,11 +15,11 @@ const skills = [
   { title: "Business & Communication", items: ["家庭教師営業で学生トップの契約率", "顧客心理のヒアリング・提案", "新規事業・サービス企画"] },
 ];
 const projects = [
-  { title: "TSP 最短経路探索ツール", type: "Python / Algorithm / Visualization", description: "11都市の巡回セールスマン問題（TSP）を全探索で解き、最短経路を算出・可視化するツール。距離行列の構築からグラフ描画までを一貫して実装。", mark: "TSP" },
+  { title: "TSP 最短経路探索ツール", type: "Algorithm / Visualization / Web Tool", description: "11都市の巡回セールスマン問題（TSP）を厳密に解き、最短経路を算出・可視化するツール。距離行列の構築からグラフ描画までを一貫して実装。", mark: "TSP", href: "/tsp.html" },
   { title: "給与水準の決定要因分析", type: "Python / Pandas / Regression", description: "日本の平均給与を目的変数とし、GDPや有効求人倍率などを説明変数とした重回帰分析を実施。p値・t値・標準化係数を用いて要因を検証。", mark: "DATA" },
   { title: "学生向けカーリース新規事業提案", type: "Business / Finance / Slide", description: "カーリース会社を対象とした学生・若年層向けの新規事業プラン。家族・友人シェアプランや走行距離に応じた価格設計、LTV最大化を意識したモデルを提案。", mark: "BIZ" },
   { title: "子どもの思考力を鍛えるAIエージェント構想", type: "AI / Education / Planning", description: "子どもの論理的思考・メタ認知を鍛えるAI家庭教師サービスの事業計画。対話設計や学習データの設計、教育的意義をレポートにまとめた。", mark: "AI" },
-  { title: "SS指数 計算サイト", type: "Web Tool / Public", description: "外部共有中の計算ツール。既存のドメイン、公開URL、ファイル名を維持したまま運用しています。", mark: "SS" },
+  { title: "SS指数 計算サイト", type: "Game Theory / Voting Power / Web Tool", description: "重み付き投票における各プレイヤーの影響力を、Shapley–Shubik指数として厳密計算する公開ツール。", mark: "SS", href: "/ss-index.html" },
 ];
 
 const formatDate = (date) => new Intl.DateTimeFormat("ja-JP", { year: "numeric", month: "short", day: "numeric" }).format(new Date(date));
@@ -67,7 +67,7 @@ export default function App() {
 
       <section className="content-section section-shell" id="projects">
         <SectionTitle label="Selected Work" title="制作実績。" copy="技術とビジネス、両方の視点から課題を形にしています。" />
-        <div className="projects-grid">{projects.map((project, index) => <article className={`project-card ${index === 0 ? "featured" : ""}`} key={project.title}><div className="project-visual"><span>{project.mark}</span></div><div className="project-copy"><p className="project-type">{project.type}</p><h3>{project.title}</h3><p>{project.description}</p></div></article>)}</div>
+        <div className="projects-grid">{projects.map((project, index) => <article className={`project-card ${index === 0 ? "featured" : ""}`} key={project.title}><div className="project-visual"><span>{project.mark}</span></div><div className="project-copy"><p className="project-type">{project.type}</p><h3>{project.title}</h3><p>{project.description}</p>{project.href && <a className="project-open" href={project.href}>ツールを開く <b>›</b></a>}</div></article>)}</div>
       </section>
 
       <section className="content-section section-shell essay-section" id="essay">
