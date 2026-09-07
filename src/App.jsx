@@ -15,11 +15,11 @@ const skills = [
   { title: "Business & Communication", items: ["家庭教師営業で学生トップの契約率", "顧客心理のヒアリング・提案", "新規事業・サービス企画"] },
 ];
 const projects = [
-  { title: "TSP 最短経路探索ツール", type: "Algorithm / Visualization / Web Tool", description: "11都市の巡回セールスマン問題（TSP）を厳密に解き、最短経路を算出・可視化するツール。距離行列の構築からグラフ描画までを一貫して実装。", mark: "TSP", href: "/tsp.html" },
+  { id: "tsp", title: "TSP 最短経路探索ツール", type: "Python / Algorithm / Visualization", description: "11都市の巡回セールスマン問題（TSP）を全探索で解き、最短経路を算出・可視化した制作物。ブラウザ上で操作できる移植版を公開しています。", mark: "TSP", demoUrl: "/tsp.html" },
   { title: "給与水準の決定要因分析", type: "Python / Pandas / Regression", description: "日本の平均給与を目的変数とし、GDPや有効求人倍率などを説明変数とした重回帰分析を実施。p値・t値・標準化係数を用いて要因を検証。", mark: "DATA" },
   { title: "学生向けカーリース新規事業提案", type: "Business / Finance / Slide", description: "カーリース会社を対象とした学生・若年層向けの新規事業プラン。家族・友人シェアプランや走行距離に応じた価格設計、LTV最大化を意識したモデルを提案。", mark: "BIZ" },
   { title: "子どもの思考力を鍛えるAIエージェント構想", type: "AI / Education / Planning", description: "子どもの論理的思考・メタ認知を鍛えるAI家庭教師サービスの事業計画。対話設計や学習データの設計、教育的意義をレポートにまとめた。", mark: "AI" },
-  { title: "SS指数 計算サイト", type: "Game Theory / Voting Power / Web Tool", description: "重み付き投票における各プレイヤーの影響力を、Shapley–Shubik指数として厳密計算する公開ツール。", mark: "SS", href: "/ss-index.html" },
+  { id: "shapley-shubik", title: "シャープレイ・シュービック指数 計算サイト", type: "Game Theory / Voting Power / JavaScript", description: "重み付き投票における各プレイヤーの影響力を、全順列に基づくシャープレイ・シュービック指数として計算する教育向けツール。", mark: "SS", demoUrl: "/demos/shapley-shubik/index.html", pdfUrl: "/files/shapley-shubik-slides.pdf" },
 ];
 
 const formatDate = (date) => new Intl.DateTimeFormat("ja-JP", { year: "numeric", month: "short", day: "numeric" }).format(new Date(date));
@@ -29,13 +29,17 @@ function useHashRoute() {
   const read = () => location.hash;
   const [hash, setHash] = useState(read);
   useEffect(() => { const update = () => setHash(read()); addEventListener("hashchange", update); return () => removeEventListener("hashchange", update); }, []);
-  return { activePost: posts.find((post) => hash === `#essay/${post.slug}`), archiveOpen: hash === "#essays" };
+  return {
+    activePost: posts.find((post) => hash === `#essay/${post.slug}`),
+    activeProject: projects.find((project) => hash === `#project/${project.id}`),
+    archiveOpen: hash === "#essays",
+  };
 }
 
 export default function App() {
-  const { activePost, archiveOpen } = useHashRoute();
+  const { activePost, activeProject, archiveOpen } = useHashRoute();
   const latestPosts = posts.slice(0, 2);
-  useEffect(() => { document.body.style.overflow = activePost || archiveOpen ? "hidden" : ""; return () => { document.body.style.overflow = ""; }; }, [activePost, archiveOpen]);
+  useEffect(() => { document.body.style.overflow = activePost || activeProject || archiveOpen ? "hidden" : ""; return () => { document.body.style.overflow = ""; }; }, [activePost, activeProject, archiveOpen]);
 
   return <div className="app">
     <header className="site-header">
@@ -67,7 +71,7 @@ export default function App() {
 
       <section className="content-section section-shell" id="projects">
         <SectionTitle label="Selected Work" title="制作実績。" copy="技術とビジネス、両方の視点から課題を形にしています。" />
-        <div className="projects-grid">{projects.map((project, index) => <article className={`project-card ${index === 0 ? "featured" : ""}`} key={project.title}><div className="project-visual"><span>{project.mark}</span></div><div className="project-copy"><p className="project-type">{project.type}</p><h3>{project.title}</h3><p>{project.description}</p>{project.href && <a className="project-open" href={project.href}>ツールを開く <b>›</b></a>}</div></article>)}</div>
+        <div className="projects-grid">{projects.map((project, index) => <article className={`project-card ${index === 0 ? "featured" : ""}`} key={project.title}><div className="project-visual"><span>{project.mark}</span></div><div className="project-copy"><p className="project-type">{project.type}</p><h3>{project.title}</h3><p>{project.description}</p>{project.id && <a className="project-open" href={`#project/${project.id}`}>詳細とツールを見る <b>›</b></a>}</div></article>)}</div>
       </section>
 
       <section className="content-section section-shell essay-section" id="essay">
@@ -79,7 +83,7 @@ export default function App() {
       <section className="contact section-shell" id="contact"><p className="kicker">Contact</p><h2>一緒に、次の仕組みを。</h2><p>プロジェクトや制作について、お気軽にご連絡ください。</p><a className="button primary" href="mailto:your-mail@example.com">メールを送る</a></section>
     </main>
     <footer className="section-shell"><span>© {new Date().getFullYear()} tanakashoi</span><a href="https://github.com/syouing" target="_blank" rel="noreferrer">GitHub ↗</a></footer>
-    <AnimatePresence>{archiveOpen && <EssayArchive />}{activePost && <Article post={activePost} />}</AnimatePresence>
+    <AnimatePresence>{archiveOpen && <EssayArchive />}{activePost && <Article post={activePost} />}{activeProject && <ProjectShowcase project={activeProject} />}</AnimatePresence>
   </div>;
 }
 
@@ -92,3 +96,16 @@ function EssayArchive() {
   return <motion.div className="article-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><a href="#essay" className="article-back">‹ ポートフォリオに戻る</a><div className="archive-page"><header><p className="kicker">Essay Archive</p><h1>過去のエッセイ。</h1><p>金融とエンジニアリングについて考えた記録を、公開日の新しい順にまとめています。</p></header><div className="filter-row" role="group" aria-label="記事カテゴリ">{[["all","すべて"],["finance","金融"],["engineering","エンジニアリング"]].map(([key,label]) => <button type="button" key={key} aria-pressed={filter === key} onClick={() => setFilter(key)}>{label}</button>)}</div><div className="essay-grid archive-grid">{visiblePosts.map((post) => <EssayCard post={post} key={post.slug} />)}</div></div></motion.div>;
 }
 function Article({ post }) { return <motion.div className="article-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><a href="#essays" className="article-back">‹ エッセイ一覧に戻る</a><article className="article-page"><header><Meta post={post} /><h1>{post.title}</h1><p>{post.summary}</p><img src={getCover(post)} alt="" /></header><div className="article-content">{getParagraphs(post).map((paragraph, index) => <p key={`${post.slug}-${index}`}>{paragraph}</p>)}<div className="article-references" aria-label="参考資料"><p className="references-label">参考資料</p><ol>{post.references.map((reference) => <li key={reference.url}><a href={reference.url} target="_blank" rel="noreferrer">{reference.title}</a><span>{reference.publisher}</span></li>)}</ol></div><aside>本人とAIの対話・調査メモをもとに編集しています。金融記事は投資判断を勧めるものではありません。</aside></div></article></motion.div>; }
+function ProjectShowcase({ project }) {
+  return <motion.div className="article-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+    <a href="#projects" className="article-back">‹ 制作実績に戻る</a>
+    <article className="project-page">
+      <header><p className="kicker">Selected Work</p><h1>{project.title}</h1><p>{project.description}</p></header>
+      <section className="tool-embed" aria-label={`${project.title} デモ`}>
+        <div className="tool-embed-head"><div><small>Interactive demo</small><strong>ブラウザ上で操作できます</strong></div><a href={project.demoUrl} target="_blank" rel="noreferrer">新しいタブで開く ↗</a></div>
+        <iframe title={`${project.title} デモ`} src={project.demoUrl} loading="eager" />
+      </section>
+      {project.pdfUrl && <section className="project-material"><div><small>Presentation</small><h2>制作時の発表資料</h2><p>計算サイトの目的とシャープレイ・シュービック指数の考え方をまとめた資料です。</p></div><a className="button secondary" href={project.pdfUrl} target="_blank" rel="noreferrer">PDFを見る ↗</a></section>}
+    </article>
+  </motion.div>;
+}
