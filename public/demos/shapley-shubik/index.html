@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>シャープレイ・シュービック指数 計算ツール</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      * {
+        box-sizing: border-box;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        background: #f5f5f5;
+      }
+      .container {
+        max-width: 900px;
+        margin: 32px auto;
+        padding: 24px;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      }
+      h1 {
+        margin-top: 0;
+        font-size: 1.8rem;
+        text-align: center;
+      }
+      p.description {
+        color: #555;
+        font-size: 0.95rem;
+        text-align: center;
+        margin-bottom: 24px;
+      }
+      label {
+        font-weight: 600;
+        display: block;
+        margin-bottom: 6px;
+      }
+      textarea,
+      input {
+        width: 100%;
+        padding: 10px 12px;
+        font-size: 0.95rem;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+      textarea:focus,
+      input:focus {
+        border-color: #4a90e2;
+        box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+      }
+      textarea {
+        min-height: 80px;
+        resize: vertical;
+      }
+      .form-group {
+        margin-bottom: 16px;
+      }
+      .hint {
+        font-size: 0.8rem;
+        color: #777;
+        margin-top: 4px;
+        line-height: 1.5;
+      }
+      button {
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 1rem;
+        border-radius: 999px;
+        border: none;
+        cursor: pointer;
+        background: #4a90e2;
+        color: #fff;
+        font-weight: 600;
+        transition: transform 0.05s ease, box-shadow 0.1s ease,
+          background 0.2s ease;
+      }
+      button:hover {
+        background: #3a78c2;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+        transform: translateY(-1px);
+      }
+      button:active {
+        box-shadow: none;
+        transform: translateY(0);
+      }
+      .error {
+        color: #c0392b;
+        font-size: 0.9rem;
+        margin-top: 8px;
+        white-space: pre-wrap;
+      }
+      .results {
+        margin-top: 24px;
+      }
+      .results h2 {
+        font-size: 1.3rem;
+        margin-bottom: 12px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 8px;
+        font-size: 0.9rem;
+      }
+      th,
+      td {
+        padding: 8px 10px;
+        text-align: center;
+        border-bottom: 1px solid #eee;
+      }
+      th {
+        background: #fafafa;
+        font-weight: 600;
+      }
+      .flex-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-top: 8px;
+      }
+      .flex-col {
+        flex: 1 1 260px;
+      }
+      .note {
+        margin-top: 8px;
+        font-size: 0.8rem;
+        color: #777;
+        line-height: 1.5;
+      }
+      code {
+        background: #f2f2f2;
+        padding: 0 6px;
+        border-radius: 6px;
+      }
+      @media (max-width: 600px) {
+        .container {
+          margin: 12px;
+          padding: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>シャープレイ・シュービック指数 計算ツール</h1>
+      <p class="description">
+        加重多数決ゲームにおける各プレイヤーの「影響度（投票パワー）」を、<br />
+        シャープレイ・シュービック指数で計算します。
+      </p>
+
+      <form id="calcForm">
+        <div class="form-group">
+          <label for="weights">プレイヤーの重み（持ち票）</label>
+          <textarea
+            id="weights"
+            placeholder="例：3, 2, 1&#10;または&#10;3 2 1"
+          ></textarea>
+          <div class="hint">
+            カンマ / 空白 / 改行区切りで入力できます。例：<code>3,2,1</code> や
+            <code>4 3 2 1</code><br />
+            ※この版は「全順列をすべて生成してから評価」します。人数が多いと時間がかかるため、まずは
+            3〜8人程度での利用を推奨します。
+          </div>
+        </div>
+
+        <div class="flex-row">
+          <div class="form-group flex-col">
+            <label for="quota">閾値（勝利条件 / クォータ）</label>
+            <input id="quota" type="number" step="1" placeholder="例：4" />
+            <div class="hint">
+              例：重みが <code>3,2,1</code> のとき、過半数 4 票なら閾値は
+              <code>4</code>
+            </div>
+          </div>
+
+          <div class="form-group flex-col">
+            <label>計算について</label>
+            <div class="hint">
+              シャープレイ・シュービック指数：<br />
+              「投票順序（順列）をすべて等確率」としたとき、勝利条件を初めて満たす“決定票（ピボット）”になる確率。
+            </div>
+          </div>
+        </div>
+
+        <button type="submit">指数を計算する</button>
+        <div id="error" class="error"></div>
+      </form>
+
+      <div class="results" id="results" style="display: none">
+        <h2>結果</h2>
+        <div id="gameSummary" class="note"></div>
+        <table>
+          <thead>
+            <tr>
+              <th>プレイヤー</th>
+              <th>重み</th>
+              <th>ピボット回数</th>
+              <th>シャープレイ・シュービック指数</th>
+            </tr>
+          </thead>
+          <tbody id="resultBody"></tbody>
+        </table>
+        <div class="note" id="extraNote"></div>
+      </div>
+    </div>
+
+    <script>
+      // ------------------------------
+      // パターンA：全順列を「まず全部作って」から評価する
+      // ------------------------------
+
+      // arr の全順列を配列として返す（例：[[0,1,2],[0,2,1],...]）
+      function allPermutations(arr) {
+        if (arr.length === 0) return [[]];
+
+        const result = [];
+        for (let i = 0; i < arr.length; i++) {
+          const first = arr[i];
+          const rest = arr.slice(0, i).concat(arr.slice(i + 1));
+          const permsOfRest = allPermutations(rest);
+          for (const p of permsOfRest) {
+            result.push([first, ...p]);
+          }
+        }
+        return result;
+      }
+
+      // シャープレイ・シュービック指数の計算
+      function computeShapleyShubik(weights, quota) {
+        const n = weights.length;
+        const players = Array.from({ length: n }, (_, i) => i);
+
+        // 1) 全順列を作る
+        const perms = allPermutations(players);
+
+        // 2) ピボット回数を数える
+        const pivotCounts = new Array(n).fill(0);
+
+        for (const order of perms) {
+          let sum = 0;
+          for (const player of order) {
+            sum += weights[player];
+            if (sum >= quota) {
+              pivotCounts[player]++; // この順列におけるピボット
+              break;
+            }
+          }
+        }
+
+        const totalPermutations = perms.length;
+        const indicesValue = pivotCounts.map((c) => c / totalPermutations);
+
+        return { pivotCounts, indicesValue, totalPermutations };
+      }
+
+      // UI処理
+      document
+        .getElementById("calcForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const errorEl = document.getElementById("error");
+          const resultsEl = document.getElementById("results");
+          const resultBodyEl = document.getElementById("resultBody");
+          const gameSummaryEl = document.getElementById("gameSummary");
+          const extraNoteEl = document.getElementById("extraNote");
+
+          errorEl.textContent = "";
+          resultsEl.style.display = "none";
+          resultBodyEl.innerHTML = "";
+          gameSummaryEl.textContent = "";
+          extraNoteEl.textContent = "";
+
+          // 入力の取得・パース
+          const rawWeights = document.getElementById("weights").value.trim();
+          const quotaStr = document.getElementById("quota").value.trim();
+
+          if (!rawWeights) {
+            errorEl.textContent = "プレイヤーの重みを入力してください。";
+            return;
+          }
+          if (!quotaStr) {
+            errorEl.textContent = "閾値（勝利条件）を入力してください。";
+            return;
+          }
+
+          // カンマ・空白・改行区切り対応
+          const parts = rawWeights.split(/[\s,]+/).filter((x) => x.length > 0);
+          const weights = parts.map(Number);
+
+          if (weights.length === 0) {
+            errorEl.textContent =
+              "重みを正しく読み取れませんでした。入力形式を確認してください。";
+            return;
+          }
+          if (weights.some((w) => !Number.isFinite(w) || w <= 0)) {
+            errorEl.textContent = "重みは正の数で入力してください。例：3,2,1";
+            return;
+          }
+
+          const quota = Number(quotaStr);
+          if (!Number.isFinite(quota) || quota <= 0) {
+            errorEl.textContent = "閾値は正の数で入力してください。";
+            return;
+          }
+
+          const n = weights.length;
+          if (n > 9) {
+            errorEl.textContent =
+              "プレイヤー数が多いと順列（n!）が急増します。\n" +
+              "まずは 3〜8人程度で試すことを推奨します（この版は全順列を生成します）。";
+            return;
+          }
+
+          const totalWeight = weights.reduce((a, b) => a + b, 0);
+          if (quota > totalWeight) {
+            errorEl.textContent =
+              "閾値が重み合計より大きいため、どの順序でも勝利条件を満たせません。";
+            return;
+          }
+
+          // 計算
+          try {
+            const { pivotCounts, indicesValue, totalPermutations } =
+              computeShapleyShubik(weights, quota);
+
+            // サマリー
+            gameSummaryEl.innerHTML =
+              "プレイヤー数：" +
+              n +
+              "人 / 重み合計：" +
+              totalWeight +
+              " / 閾値：" +
+              quota +
+              "<br>総順列数：" +
+              totalPermutations.toLocaleString() +
+              "（= " +
+              n +
+              "!）";
+
+            // 結果テーブル
+            for (let i = 0; i < n; i++) {
+              const tr = document.createElement("tr");
+
+              const tdPlayer = document.createElement("td");
+              tdPlayer.textContent = "プレイヤー " + (i + 1);
+              tr.appendChild(tdPlayer);
+
+              const tdWeight = document.createElement("td");
+              tdWeight.textContent = weights[i];
+              tr.appendChild(tdWeight);
+
+              const tdPivot = document.createElement("td");
+              tdPivot.textContent = pivotCounts[i].toLocaleString();
+              tr.appendChild(tdPivot);
+
+              const tdIndex = document.createElement("td");
+              const value = indicesValue[i];
+              tdIndex.textContent =
+                value.toFixed(4) + "（" + (value * 100).toFixed(2) + "%）";
+              tr.appendChild(tdIndex);
+
+              resultBodyEl.appendChild(tr);
+            }
+
+            extraNoteEl.textContent =
+              "この版は「全順列を生成 → 1つずつ左から累積 → 初めて閾値を超えた人をピボットとしてカウント」という手順で計算しています。";
+
+            resultsEl.style.display = "block";
+          } catch (err) {
+            console.error(err);
+            errorEl.textContent =
+              "計算中にエラーが発生しました。入力内容を確認してください。";
+          }
+        });
+
+      // デモ用に初期値を入れておく
+      window.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("weights").value = "3, 2, 1";
+        document.getElementById("quota").value = "4";
+      });
+    </script>
+  </body>
+</html>
